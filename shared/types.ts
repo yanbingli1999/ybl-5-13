@@ -56,3 +56,23 @@ export interface ExperimentResult {
 }
 
 export type SimulationMode = 'idle' | 'running' | 'paused' | 'finished';
+
+export interface ProbeData {
+  x: number;
+  y: number;
+  temperature: number;
+  materialId: string;
+  materialName: string;
+  nearestHeatSourceDistance: number;
+  nearestHeatSourceX: number;
+  nearestHeatSourceY: number;
+  historicalMaxTemp: number;
+}
+
+export interface PinnedProbe {
+  id: string;
+  data: ProbeData;
+  note: string;
+  step: number;
+  timestamp: number;
+}

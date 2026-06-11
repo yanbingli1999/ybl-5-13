@@ -1,18 +1,21 @@
-import React, { useRef, useCallback, useEffect } from 'react';
+import React, { useRef, useCallback, useEffect, useState } from 'react';
 import useSimulationStore from '../store/useSimulationStore';
 import useSimulation from '../hooks/useSimulation';
 import useHeatRenderer from '../hooks/useHeatRenderer';
+import { DataProbe } from './DataProbe';
 
 export const HeatCanvas: React.FC = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const isDrawingRef = useRef(false);
+  const [mousePosition, setMousePosition] = useState<{ x: number; y: number } | null>(null);
 
   const {
     grid,
     brushSize,
     brushTemperature,
     drawMode,
+    hoveredCell,
     setHoveredCell,
     setCurrentTemperature,
     addHeatSource,
@@ -78,6 +81,15 @@ export const HeatCanvas: React.FC = () => {
 
   const handleMouseMove = useCallback(
     (e: React.MouseEvent<HTMLCanvasElement>) => {
+      const canvas = canvasRef.current;
+      if (canvas) {
+        const rect = canvas.getBoundingClientRect();
+        setMousePosition({
+          x: e.clientX - rect.left,
+          y: e.clientY - rect.top,
+        });
+      }
+
       const coords = getGridCoordinates(e);
       setHoveredCell(coords);
 
@@ -95,6 +107,7 @@ export const HeatCanvas: React.FC = () => {
   const handleMouseLeave = useCallback(() => {
     isDrawingRef.current = false;
     setHoveredCell(null);
+    setMousePosition(null);
   }, [setHoveredCell]);
 
   useEffect(() => {
@@ -136,6 +149,11 @@ export const HeatCanvas: React.FC = () => {
           onMouseMove={handleMouseMove}
           onMouseUp={handleMouseUp}
           onMouseLeave={handleMouseLeave}
+        />
+        <DataProbe
+          mousePosition={mousePosition}
+          gridCell={hoveredCell}
+          canvasRef={canvasRef}
         />
         {isRunning && (
           <div className="absolute top-4 left-4 bg-red-500/90 backdrop-blur-sm px-3 py-1.5 rounded-full text-white text-xs font-medium flex items-center gap-2 animate-pulse">

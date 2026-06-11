@@ -20,6 +20,8 @@ export function useSimulation() {
     setCurrentTemperature,
     addTemperatureToHistory,
     clearHistory,
+    updateMaxTemperature,
+    setMaxTemperature,
   } = useSimulationStore();
 
   const engineRef = useRef<HeatDiffusionEngine | null>(null);
@@ -49,18 +51,20 @@ export function useSimulation() {
     );
     const initialTemp = engineRef.current.getTemperatureData();
     setCurrentTemperature(initialTemp);
+    setMaxTemperature(initialTemp.map(row => [...row]));
     clearHistory();
     addTemperatureToHistory(initialTemp);
-  }, [grid, diffusionCoefficient, boundaryConditions, initialHeatSources, timeStep, setCurrentTemperature, clearHistory, addTemperatureToHistory]);
+  }, [grid, diffusionCoefficient, boundaryConditions, initialHeatSources, timeStep, setCurrentTemperature, setMaxTemperature, clearHistory, addTemperatureToHistory]);
 
   const step = useCallback(() => {
     if (!engineRef.current) return null;
     const newTemp = engineRef.current.step();
     setCurrentTemperature(newTemp);
+    updateMaxTemperature(newTemp);
     addTemperatureToHistory(newTemp);
     setCurrentStep(engineRef.current.getCurrentStep());
     return newTemp;
-  }, [setCurrentTemperature, addTemperatureToHistory, setCurrentStep]);
+  }, [setCurrentTemperature, updateMaxTemperature, addTemperatureToHistory, setCurrentStep]);
 
   useEffect(() => {
     stepFnRef.current = step;

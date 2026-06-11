@@ -8,6 +8,8 @@ import type {
   TemperatureSnapshot,
   ExperimentResult,
   SimulationMode,
+  PinnedProbe,
+  ProbeData,
 } from '@shared/types';
 
 interface SimulationState {
@@ -37,6 +39,9 @@ interface SimulationState {
   
   currentExperimentId: string | null;
   hoveredCell: { x: number; y: number } | null;
+  maxTemperature: number[][];
+  pinnedProbes: PinnedProbe[];
+  probePosition: { x: number; y: number } | null;
   
   setMode: (mode: SimulationMode) => void;
   setCurrentStep: (step: number) => void;
@@ -68,6 +73,13 @@ interface SimulationState {
   setFavorites: (favorites: ExperimentResult[]) => void;
   setCurrentExperimentId: (id: string | null) => void;
   setHoveredCell: (cell: { x: number; y: number } | null) => void;
+  setMaxTemperature: (temp: number[][]) => void;
+  updateMaxTemperature: (temp: number[][]) => void;
+  addPinnedProbe: (probe: PinnedProbe) => void;
+  removePinnedProbe: (id: string) => void;
+  updatePinnedProbeNote: (id: string, note: string) => void;
+  setProbePosition: (pos: { x: number; y: number } | null) => void;
+  clearPinnedProbes: () => void;
   
   reset: () => void;
 }
@@ -121,6 +133,9 @@ export const useSimulationStore = create<SimulationState>((set, get) => ({
   
   currentExperimentId: null,
   hoveredCell: null,
+  maxTemperature: createEmptyTemperature(DEFAULT_GRID),
+  pinnedProbes: [],
+  probePosition: null,
   
   setMode: (mode) => set({ mode }),
   setCurrentStep: (step) => set({ currentStep: step }),
@@ -137,6 +152,7 @@ export const useSimulationStore = create<SimulationState>((set, get) => ({
       currentTemperature: createEmptyTemperature(grid),
       temperatureHistory: [],
       currentStep: 0,
+      maxTemperature: createEmptyTemperature(grid),
     }),
   setBoundaryConditions: (bc) => set({ boundaryConditions: bc }),
   setMaterialId: (id) => {
@@ -181,6 +197,30 @@ export const useSimulationStore = create<SimulationState>((set, get) => ({
   setFavorites: (favorites) => set({ favorites }),
   setCurrentExperimentId: (id) => set({ currentExperimentId: id }),
   setHoveredCell: (cell) => set({ hoveredCell: cell }),
+  setMaxTemperature: (temp) => set({ maxTemperature: temp }),
+  updateMaxTemperature: (temp) =>
+    set((state) => {
+      const newMax = state.maxTemperature.map((row, y) =>
+        row.map((val, x) => Math.max(val, temp[y]?.[x] ?? val))
+      );
+      return { maxTemperature: newMax };
+    }),
+  addPinnedProbe: (probe) =>
+    set((state) => ({
+      pinnedProbes: [...state.pinnedProbes, probe],
+    })),
+  removePinnedProbe: (id) =>
+    set((state) => ({
+      pinnedProbes: state.pinnedProbes.filter((p) => p.id !== id),
+    })),
+  updatePinnedProbeNote: (id, note) =>
+    set((state) => ({
+      pinnedProbes: state.pinnedProbes.map((p) =>
+        p.id === id ? { ...p, note } : p
+      ),
+    })),
+  setProbePosition: (pos) => set({ probePosition: pos }),
+  clearPinnedProbes: () => set({ pinnedProbes: [] }),
   
   reset: () =>
     set((state) => ({
@@ -188,6 +228,8 @@ export const useSimulationStore = create<SimulationState>((set, get) => ({
       currentStep: 0,
       currentTemperature: createEmptyTemperature(state.grid),
       temperatureHistory: [],
+      maxTemperature: createEmptyTemperature(state.grid),
+      pinnedProbes: [],
     })),
 }));
 
