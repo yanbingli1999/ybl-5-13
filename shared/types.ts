@@ -45,6 +45,7 @@ export interface TemperatureSnapshot {
   timestamp: number;
   temperatureData: number[][];
   name?: string;
+  pinnedProbes?: PinnedProbe[];
 }
 
 export interface ExperimentResult {

@@ -13,6 +13,7 @@ export const Timeline: React.FC = () => {
     removeSnapshot,
     minTemp,
     maxTemp,
+    setPinnedProbes,
   } = useSimulationStore();
 
   const { goToStep, isRunning } = useSimulation();
@@ -32,6 +33,11 @@ export const Timeline: React.FC = () => {
     if (isRunning) return;
     if (snapshot.step < temperatureHistory.length) {
       goToStep(snapshot.step);
+      if (snapshot.pinnedProbes && snapshot.pinnedProbes.length > 0) {
+        setPinnedProbes(snapshot.pinnedProbes);
+      } else {
+        setPinnedProbes([]);
+      }
     }
   };
 

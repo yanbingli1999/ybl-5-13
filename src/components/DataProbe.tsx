@@ -98,7 +98,29 @@ export const DataProbe: React.FC<DataProbeProps> = ({
     setEditNote('');
   };
 
-  if (!probeData || !mousePosition) return null;
+  if (!probeData || !mousePosition) {
+    if (pinnedProbes.length === 0) {
+      return null;
+    }
+    return (
+      <>
+        {pinnedProbes.map((probe) => (
+          <PinnedProbeMarker
+            key={probe.id}
+            probe={probe}
+            canvasRef={canvasRef}
+            onRemove={() => removePinnedProbe(probe.id)}
+            onEditNote={() => handleStartEditNote(probe)}
+            isEditing={editingProbeId === probe.id}
+            editNote={editNote}
+            onEditNoteChange={setEditNote}
+            onSaveNote={() => handleSaveNote(probe.id)}
+            canEdit={canPin}
+          />
+        ))}
+      </>
+    );
+  }
 
   return (
     <>

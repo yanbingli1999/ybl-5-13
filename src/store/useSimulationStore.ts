@@ -80,6 +80,7 @@ interface SimulationState {
   updatePinnedProbeNote: (id: string, note: string) => void;
   setProbePosition: (pos: { x: number; y: number } | null) => void;
   clearPinnedProbes: () => void;
+  setPinnedProbes: (probes: PinnedProbe[]) => void;
   
   reset: () => void;
 }
@@ -221,6 +222,7 @@ export const useSimulationStore = create<SimulationState>((set, get) => ({
     })),
   setProbePosition: (pos) => set({ probePosition: pos }),
   clearPinnedProbes: () => set({ pinnedProbes: [] }),
+  setPinnedProbes: (probes) => set({ pinnedProbes: probes }),
   
   reset: () =>
     set((state) => ({

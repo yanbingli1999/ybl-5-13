@@ -12,6 +12,7 @@ export const ControlBar: React.FC = () => {
     currentTemperature,
     currentExperimentId,
     addSnapshot,
+    pinnedProbes,
   } = useSimulationStore();
 
   const { play, pause, reset, stepForward, isRunning, isPaused, isFinished, isIdle } = useSimulation();
@@ -26,6 +27,13 @@ export const ControlBar: React.FC = () => {
       timestamp: Date.now(),
       temperatureData: currentTemperature.map(row => [...row]),
       name: `第 ${currentStep} 步`,
+      pinnedProbes: pinnedProbes.map(p => ({
+        id: p.id,
+        data: { ...p.data },
+        note: p.note,
+        step: p.step,
+        timestamp: p.timestamp,
+      })),
     };
 
     try {
